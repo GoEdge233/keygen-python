@@ -13,12 +13,11 @@
 
 - `cryptography`
 - `pydantic`
-- `typing`
 
 你可以使用以下命令安装依赖项：
 
 ```bash
-pip install cryptography pydantic typing
+pip install cryptography pydantic
 ```
 
 推荐使用 Python 3.10 或更高版本。

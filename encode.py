@@ -1,6 +1,7 @@
 import random
 import string
 import base64
+import datetime
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from pydantic import BaseModel, Field, field_validator
@@ -29,8 +30,14 @@ class KeyGen(BaseModel):
     nodes: int = Field(0, description="节点数 (0为无限制)")
     updatedAt: int = Field(0, description="更新时间戳")
     components: List[str] = Field(default_factory=lambda: ["*"], description="组件列表")
-    edition: str = Field("ultra", description="版本 (basic/pro/ent/sub/ultra)")
+    edition: str = Field("ultra", description="版本 (basic/pro/ent/max/ultra)")
     email: str = Field(..., description="邮箱地址，可选")
+
+    @field_validator("edition")
+    def check_edition(cls, v):
+        if v not in ["basic", "pro", "ent", "max", "ultra"]:
+            raise ValueError("版本错误，必须在 basic/pro/ent/max/ultra 中选择")
+        return v
 
     @field_validator("dayFrom", "dayTo")
     def check_date_format(cls, v):
@@ -54,6 +61,10 @@ def get_user_input(prompt: str, default: str = "") -> str:
 
 
 def main():
+    print("激活码生成器 | GoEdge 分遗产版")
+    print("本脚本无需输入申请码，免费开源。")
+    print("开源仓库链接：https://github.com/GoEdge233/keygen-python")
+    print("请按照提示输入信息：")
     data = {
         "id": generate_random_string(),
         "dayFrom": get_user_input("请输入开始日期 (YYYY-MM-DD)", "2000-01-01"),
@@ -63,12 +74,18 @@ def main():
         "hostname": "*",
         "company": get_user_input("请输入公司/组织名", "@goedge233 | Goedge 分遗产版"),
         "nodes": int(get_user_input("请输入节点数 (0为无限制)", "0")),
-        "updatedAt": 0,
+        "updatedAt": get_user_input("请输入更新时间戳 (int)，默认为当前时间", int(datetime.datetime.now().timestamp())),
         "components": ["*"],
         "edition": get_user_input(
-            "请输入版本 (basic/pro/ent/sub/ultra) (默认 ultra): ", "ultra"
+            # basic: 个人商业版
+            # pro: 专业版
+            # ent: 企业版
+            # max: 豪华版
+            # ultra: 旗舰版
+            "请输入版本 (basic/pro/ent/max/ultra) (默认 ultra): ",
+            "ultra",
         ),
-        "email": "goedge233@t.me",
+        "email": generate_random_string(4) + ".goedge233@t.me",
     }
 
     try:
@@ -78,6 +95,7 @@ def main():
         return
 
     encoded = Encode(keygen.model_dump_json().encode())
+    print("\n\n激活码：")
     print(base64.b64encode(encoded).decode())
     print("\n\n欢迎关注 GoEdge 分遗产频道 https://t.me/goedge233")
 
