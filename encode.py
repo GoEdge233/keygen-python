@@ -27,11 +27,23 @@ class KeyGen(BaseModel):
     requestCode: str = Field(..., description="请求码")
     hostname: str = Field("*", description="主机名")
     company: str = Field(..., description="公司/组织名")
-    nodes: int = Field(0, description="节点数 (0为无限制)")
+    nodes: int = Field(0, description="节点数 (1-2147483647)")
     updatedAt: int = Field(0, description="更新时间戳")
     components: List[str] = Field(default_factory=lambda: ["*"], description="组件列表")
     edition: str = Field("ultra", description="版本 (basic/pro/ent/max/ultra)")
     email: str = Field(..., description="邮箱地址，可选")
+
+    @field_validator("company")
+    def check_company(cls, v):
+        if len(v) > 512:
+            raise ValueError("公司/组织名长度不能超过 512 个字符")
+        return v
+
+    @field_validator("nodes")
+    def check_nodes(cls, v):
+        if v < 0 or v > 2147483647:
+            raise ValueError("节点数必须介于 1 和 2147483647 之间")
+        return v
 
     @field_validator("edition")
     def check_edition(cls, v):
@@ -73,8 +85,11 @@ def main():
         "requestCode": "*",
         "hostname": "*",
         "company": get_user_input("请输入公司/组织名", "@goedge233 | Goedge 分遗产版"),
-        "nodes": int(get_user_input("请输入节点数 (0为无限制)", "0")),
-        "updatedAt": get_user_input("请输入更新时间戳 (int)，默认为当前时间", int(datetime.datetime.now().timestamp())),
+        "nodes": int(get_user_input("请输入节点数 (1-2147483647)", "2147483647")),
+        "updatedAt": get_user_input(
+            "请输入更新时间戳 (int)，默认为当前时间",
+            int(datetime.datetime.now().timestamp()),
+        ),
         "components": ["*"],
         "edition": get_user_input(
             # basic: 个人商业版

@@ -53,7 +53,7 @@ def main():
             f"结束日期: {json_data.get('dayTo')}\n"
             f"生效时间：{timestamp_to_datetime_string(json_data.get('updatedAt'))}\n"
             f"公司/组织名: {json_data.get('company')}\n"
-            f"节点数 (0 即为无限): {json_data.get('nodes')}\n"
+            f"可用节点数: {json_data.get('nodes')}\n"
             f"激活版本: {get_version_name(json_data.get('edition'))}\n"
             f"邮箱: {json_data.get('email')}\n"
         )
